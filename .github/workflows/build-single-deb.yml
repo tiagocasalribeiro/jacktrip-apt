@@ -58,21 +58,31 @@ jobs:
           tar -xzf jacktrip-${VERSION}.tar.gz
           mv jacktrip-${VERSION#v} jacktrip-source
 
-      - name: Prepare Debian packaging
+      - name: Prepare Debian packaging (with automatic fixes)
         if: steps.check.outputs.skip == 'false'
         run: |
           VERSION="${{ steps.latest.outputs.version }}"
           PKG_VERSION="${VERSION#v}-1"
           cd jacktrip-source
           cp -r ../my-repo/debian .
+          
+          # 🔥 CORREÇÕES AUTOMÁTICAS:
+          # 1. Remover debian/compat (conflito com debhelper-compat no control)
+          rm -f debian/compat
+          
+          # 2. Garantir que debian/rules é executável
+          chmod +x debian/rules
+          
+          # 3. Garantir que debian/source/format existe
+          mkdir -p debian/source
+          echo "3.0 (quilt)" > debian/source/format
+          
+          # 4. Gerar changelog com a versão correta
           cat > debian/changelog << EOF
           jacktrip (${PKG_VERSION}) stable; urgency=medium
             * Automated build from upstream release ${VERSION}
            -- GitHub Actions <actions@github.com>  $(date -R)
           EOF
-          echo "13" > debian/compat
-          mkdir -p debian/source
-          echo "3.0 (quilt)" > debian/source/format
 
       - name: Build .deb in Debian 12 container (ALL dependencies)
         if: steps.check.outputs.skip == 'false'
