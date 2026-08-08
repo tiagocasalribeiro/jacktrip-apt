@@ -14,7 +14,7 @@ jobs:
   check-and-build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  # Necessário para criar releases
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
@@ -83,7 +83,7 @@ jobs:
            -- GitHub Actions <actions@github.com>  $(date -R)
           EOF
 
-      - name: Build .deb in Debian 12 container (ALL dependencies)
+      - name: Build .deb in Debian 12 container
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bookworm
         with:
@@ -149,3 +149,21 @@ jobs:
           git add .
           git commit -m "Update to version ${{ steps.latest.outputs.version }} (universal build)"
           git push
+
+      # 🆕 PUBLICAR O .deb NAS RELEASES DO GITHUB
+      - name: Create GitHub Release and attach .deb
+        if: steps.check.outputs.skip == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.latest.outputs.version }}
+          name: JackTrip ${{ steps.latest.outputs.version }}
+          body: |
+            Pacote .deb para distribuições Debian-based (Debian 12+, Ubuntu 22.04+).
+            Instalação via APT: `sudo apt install jacktrip` (após adicionar o repositório).
+            Consulte o README para mais detalhes.
+          draft: false
+          prerelease: false
+          files: |
+            jacktrip-source/../*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
