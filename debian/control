@@ -1,0 +1,16 @@
+Source: jacktrip
+Section: sound
+Priority: optional
+Maintainer: Seu Nome <seu-email@exemplo.com>
+Build-Depends: debhelper (>= 11), meson, ninja-build,
+               qtbase5-dev, qttools5-dev-tools,
+               libjack-jackd2-dev, librtaudio-dev, libsamplerate0-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/jacktrip/jacktrip
+
+Package: jacktrip
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: High-quality system for audio network performances
+ JackTrip is a Linux and Mac OS X-based system used for multi-machine
+ network performance over the Internet.
