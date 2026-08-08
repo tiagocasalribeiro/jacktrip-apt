@@ -14,7 +14,7 @@ jobs:
   check-and-build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Necessário para criar releases
+      contents: write
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
@@ -125,7 +125,14 @@ jobs:
           mkdir -p apt-repo/pool/main/j/jacktrip
           cp jacktrip-source/../*.deb apt-repo/pool/main/j/jacktrip/
 
-      - name: Generate APT metadata
+      - name: Import GPG key
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --batch --import
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Generate and sign APT metadata
         if: steps.check.outputs.skip == 'false'
         run: |
           cd apt-repo
@@ -133,7 +140,10 @@ jobs:
           mkdir -p $DIST_DIR
           apt-ftparchive packages pool/ > $DIST_DIR/Packages
           gzip -k -f $DIST_DIR/Packages
+
           apt-ftparchive release dists/stable > dists/stable/Release
+          gpg --batch --yes --detach-sign --armor -o dists/stable/Release.gpg dists/stable/Release
+          gpg --batch --yes --clearsign -o dists/stable/InRelease dists/stable/Release
 
       - name: Update VERSION file
         if: steps.check.outputs.skip == 'false'
@@ -147,10 +157,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update to version ${{ steps.latest.outputs.version }} (universal build)"
+          git commit -m "Update to version ${{ steps.latest.outputs.version }} (signed repository)"
           git push
 
-      # 🆕 PUBLICAR O .deb NAS RELEASES DO GITHUB
       - name: Create GitHub Release and attach .deb
         if: steps.check.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2
