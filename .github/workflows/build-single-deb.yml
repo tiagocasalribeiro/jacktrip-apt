@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 6 * * *'
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Forçar build (true/false)'
+        required: true
+        default: 'false'
 
 jobs:
   check-and-build:
@@ -40,10 +45,13 @@ jobs:
           fi
           echo "stored=$STORED" >> $GITHUB_OUTPUT
 
-      - name: Check if new version
+      - name: Check if new version (or forced)
         id: check
         run: |
-          if [ "${{ steps.latest.outputs.version }}" = "${{ steps.stored.outputs.stored }}" ]; then
+          if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "Forced build enabled"
+          elif [ "${{ steps.latest.outputs.version }}" = "${{ steps.stored.outputs.stored }}" ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
           else
             echo "skip=false" >> $GITHUB_OUTPUT
@@ -65,19 +73,10 @@ jobs:
           PKG_VERSION="${VERSION#v}-1"
           cd jacktrip-source
           cp -r ../my-repo/debian .
-          
-          # 🔥 CORREÇÕES AUTOMÁTICAS:
-          # 1. Remover debian/compat (conflito com debhelper-compat no control)
           rm -f debian/compat
-          
-          # 2. Garantir que debian/rules é executável
           chmod +x debian/rules
-          
-          # 3. Garantir que debian/source/format existe
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
-          
-          # 4. Gerar changelog com a versão correta
           cat > debian/changelog << EOF
           jacktrip (${PKG_VERSION}) stable; urgency=medium
             * Automated build from upstream release ${VERSION}
