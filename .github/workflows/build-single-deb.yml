@@ -65,10 +65,6 @@ jobs:
           PKG_VERSION="${VERSION#v}-1"
           cd jacktrip-source
           cp -r ../my-repo/debian .
-          
-          # 🔧 CORREÇÃO: Substitui c++20 por c++2a para compatibilidade com Meson 0.56
-          sed -i 's/c++20/c++2a/g' meson.build
-          
           cat > debian/changelog << EOF
           jacktrip (${PKG_VERSION}) stable; urgency=medium
             * Automated build from upstream release ${VERSION}
@@ -78,9 +74,10 @@ jobs:
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
 
-      - name: Build .deb in Debian 11 container (universal compatibility)
+      # 🔥 ALTERAÇÃO: Container agora é Debian 12 (Bookworm)
+      - name: Build .deb in Debian 12 container
         if: steps.check.outputs.skip == 'false'
-        uses: docker://debian:bullseye
+        uses: docker://debian:bookworm
         with:
           args: |
             bash -c "
