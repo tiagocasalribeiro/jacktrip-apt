@@ -74,8 +74,7 @@ jobs:
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
 
-      # 🔥 CORREÇÃO: instala python3-yaml e todas as dependências
-      - name: Build .deb in Debian 12 container (with Qt6 + PyYAML)
+      - name: Build .deb in Debian 12 container
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bookworm
         with:
@@ -88,7 +87,7 @@ jobs:
                 qt6-base-dev qt6-tools-dev qt6-l10n-tools \
                 libjack-jackd2-dev librtaudio-dev \
                 libsamplerate0-dev \
-                python3-yaml &&
+                python3-yaml python3-jinja2 &&
               cd /github/workspace/jacktrip-source &&
               dpkg-buildpackage -us -uc -b
             "
