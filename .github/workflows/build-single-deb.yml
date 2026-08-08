@@ -74,7 +74,8 @@ jobs:
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
 
-      - name: Build .deb in Debian 12 container (with Qt6)
+      # 🔥 CORREÇÃO: instala python3-yaml e todas as dependências
+      - name: Build .deb in Debian 12 container (with Qt6 + PyYAML)
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bookworm
         with:
@@ -86,7 +87,8 @@ jobs:
                 meson ninja-build \
                 qt6-base-dev qt6-tools-dev qt6-l10n-tools \
                 libjack-jackd2-dev librtaudio-dev \
-                libsamplerate0-dev &&
+                libsamplerate0-dev \
+                python3-yaml &&
               cd /github/workspace/jacktrip-source &&
               dpkg-buildpackage -us -uc -b
             "
@@ -119,5 +121,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update to version ${{ steps.latest.outputs.version }} (universal build with Qt6)"
+          git commit -m "Update to version ${{ steps.latest.outputs.version }} (universal build)"
           git push
