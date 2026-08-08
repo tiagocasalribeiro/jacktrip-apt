@@ -1,17 +1,24 @@
-Date: Sat, 08 Aug 2026 09:28:13 +0000
+Architectures: amd64
+Codename: stable
+Components: main
+Date: Sat, 08 Aug 2026 09:41:42 +0000
+Description: JackTrip APT repository
+Label: jacktrip-apt
+Origin: jacktrip-apt
+Suite: stable
 MD5Sum:
- bed3774c5fb9fbd41d574cf184730c73               38 Release
- 2ae46967c723fc812b8f3933b5da3dd8             2007 main/binary-amd64/Packages
- 2304514c49063cfcdb5ce157018f57ed             1023 main/binary-amd64/Packages.gz
+ 25bacbdc3d7fd07521b6b8dbeb46a6f5              185 Release
+ f3b94feec2312bc17748ad5d1d31e3db             2007 main/binary-amd64/Packages
+ 2678475fd8deab57ce0f4bff7c2aa928             1024 main/binary-amd64/Packages.gz
 SHA1:
- 2815f95ebb6a4c93368bf606a0bae16b2907f67b               38 Release
- a1d1ca88b565979926a8f411d64b286474f613b3             2007 main/binary-amd64/Packages
- 254fc5000753e4b26ce7c6833e862dbc07d8907d             1023 main/binary-amd64/Packages.gz
+ c24ded4de732f568811b41f8745613eb80cd78ef              185 Release
+ e844c776a06f61fef1bdd1904cf655fcf9a71055             2007 main/binary-amd64/Packages
+ f8d856d1948d5d0bd73431e92b89807657625080             1024 main/binary-amd64/Packages.gz
 SHA256:
- 9ab713bff75797e31df4c462677560341b5860bd760056d3bab89c3cc4b6338c               38 Release
- 2210dd0c59599fc9acf3e6bbbfb14ab69b884c7ccd306ceeb713bea87f216e68             2007 main/binary-amd64/Packages
- fa5bdee829a77645a95f6a980dda41dd308bb66cc474ae6b5b14d41a21d93a83             1023 main/binary-amd64/Packages.gz
+ 1ff0e448c7bffc2943467eeb15e145ac55a2610df8657785c0fb555fa47466f1              185 Release
+ 22b5aa97a082cf5e0c3c6258400fe11747ac9766a78e775fe344eb570daddb70             2007 main/binary-amd64/Packages
+ 89707db4d3e5dd6d2a7c4d33fd5d2a4a442ed24e7030f9e30dc81edcdff8c53f             1024 main/binary-amd64/Packages.gz
 SHA512:
- 5db59b060426fcfd456055bb6e71d15cc39fda10d4f062c5dcbb132daadef6d955d9a66a920993abfd18bc11df7c666a7836f1a9ca5e681b2dfb47dcb4a79883               38 Release
- 51c0606f320c7f07a1dac93e40310791598fe7de06947d0d57da490cd7e5148987d11aea190a606b95deaf5ddfeecccadd2fe918d89b558de1b6a4d056e189be             2007 main/binary-amd64/Packages
- 362e7005bf8ddddc4dd1ea6c64983d83ef6a672cdff64bfdd974f40afbf5f4b3fd3f963b0947df076c69637dc98e39f218f1d2ca613b86d0c221b23453b7c129             1023 main/binary-amd64/Packages.gz
+ fbf10c44e76d3fa9c9ce02afd575c30b509ea3d6d203fd14d9f3f230e876a93fcd05d044f74f6c63717c471c0bd2b1fcb6d981dd93a4fa0b6d67848be3f3bbff              185 Release
+ 3bfa54967947052fe028b387481c79b2e75445cafcb6cf7c6f6a611b42f4b0c9a0fcae220f8f001a33d15e07e5d3a95137107243d30424bb689444fa306f5b72             2007 main/binary-amd64/Packages
+ caeca24196b49b367aeab313533fefef7d6e62a10919bc04d4d38ba86d8616ebd97b56cf90c22803f8c2f4dee9fa5eff788f39b2287628efc6d0817538e65574             1024 main/binary-amd64/Packages.gz
