@@ -11,13 +11,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      # 1. Clona o SEU repositório (onde estão os arquivos debian/)
       - name: Checkout your repo
         uses: actions/checkout@v4
         with:
           path: my-repo
 
-      # 2. Clona a branch gh-pages (para ler a versão armazenada e publicar)
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -25,7 +23,6 @@ jobs:
           path: apt-repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Obtém a última release do jacktrip/jacktrip
       - name: Get latest release from jacktrip/jacktrip
         id: latest
         run: |
@@ -33,7 +30,6 @@ jobs:
           echo "version=$LATEST" >> $GITHUB_OUTPUT
           echo "Latest version: $LATEST"
 
-      # 4. Lê a versão armazenada no apt-repo
       - name: Read stored version
         id: stored
         run: |
@@ -44,7 +40,6 @@ jobs:
           fi
           echo "stored=$STORED" >> $GITHUB_OUTPUT
 
-      # 5. Compara versões
       - name: Check if new version
         id: check
         run: |
@@ -54,7 +49,6 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      # 6. Baixa o source tarball da release upstream
       - name: Download source tarball
         if: steps.check.outputs.skip == 'false'
         run: |
@@ -62,31 +56,29 @@ jobs:
           wget -O jacktrip-${VERSION}.tar.gz \
             https://github.com/jacktrip/jacktrip/archive/refs/tags/${VERSION}.tar.gz
           tar -xzf jacktrip-${VERSION}.tar.gz
-          # O diretório extraído tem o nome jacktrip-<versão> (sem 'v' se houver)
           mv jacktrip-${VERSION#v} jacktrip-source
 
-      # 7. Copia o diretório debian/ do SEU repositório para dentro do source
       - name: Prepare Debian packaging
         if: steps.check.outputs.skip == 'false'
         run: |
           VERSION="${{ steps.latest.outputs.version }}"
           PKG_VERSION="${VERSION#v}-1"
           cd jacktrip-source
-          # Copia o debian/ que está em my-repo/debian
           cp -r ../my-repo/debian .
-          # Gera changelog com a versão correta
+          
+          # 🔧 CORREÇÃO: Substitui c++20 por c++2a para compatibilidade com Meson 0.56
+          sed -i 's/c++20/c++2a/g' meson.build
+          
           cat > debian/changelog << EOF
           jacktrip (${PKG_VERSION}) stable; urgency=medium
             * Automated build from upstream release ${VERSION}
            -- GitHub Actions <actions@github.com>  $(date -R)
           EOF
-          # (Opcional) Garante que compat e source/format existam
           echo "11" > debian/compat
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
 
-      # 8. Constrói o .deb dentro de um container Debian 11 (Bullseye)
-      - name: Build .deb in Debian 11 container
+      - name: Build .deb in Debian 11 container (universal compatibility)
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bullseye
         with:
@@ -103,14 +95,12 @@ jobs:
               dpkg-buildpackage -us -uc -b
             "
 
-      # 9. Copia o .deb gerado para o apt-repo (estrutura pool)
       - name: Copy .deb to apt repository
         if: steps.check.outputs.skip == 'false'
         run: |
           mkdir -p apt-repo/pool/main/j/jacktrip
           cp jacktrip-source/../*.deb apt-repo/pool/main/j/jacktrip/
 
-      # 10. Gera metadados APT (Packages, Release)
       - name: Generate APT metadata
         if: steps.check.outputs.skip == 'false'
         run: |
@@ -121,13 +111,11 @@ jobs:
           gzip -k -f $DIST_DIR/Packages
           apt-ftparchive release dists/stable > dists/stable/Release
 
-      # 11. Atualiza o arquivo VERSION com a nova versão
       - name: Update VERSION file
         if: steps.check.outputs.skip == 'false'
         run: |
           echo "${{ steps.latest.outputs.version }}" > apt-repo/VERSION
 
-      # 12. Commit e push para gh-pages
       - name: Commit and push to gh-pages
         if: steps.check.outputs.skip == 'false'
         run: |
