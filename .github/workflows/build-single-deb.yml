@@ -2,7 +2,7 @@ name: Daily Universal .deb Build (Independent)
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # Todos os dias às 06:00 UTC
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -70,11 +70,11 @@ jobs:
             * Automated build from upstream release ${VERSION}
            -- GitHub Actions <actions@github.com>  $(date -R)
           EOF
-          echo "11" > debian/compat
+          echo "13" > debian/compat
           mkdir -p debian/source
           echo "3.0 (quilt)" > debian/source/format
 
-      - name: Build .deb in Debian 12 container
+      - name: Build .deb in Debian 12 container (ALL dependencies)
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bookworm
         with:
@@ -82,12 +82,30 @@ jobs:
             bash -c "
               apt-get update &&
               apt-get install -y --no-install-recommends \
-                build-essential debhelper dpkg-dev \
-                meson ninja-build \
-                qt6-base-dev qt6-tools-dev qt6-l10n-tools \
-                libjack-jackd2-dev librtaudio-dev \
-                libsamplerate0-dev \
-                python3-yaml python3-jinja2 &&
+                build-essential autoconf automake libtool make \
+                debhelper dpkg-dev meson ninja-build pkg-config \
+                libjack-jackd2-dev librtaudio-dev libsamplerate0-dev \
+                help2man python3-jinja2 python3-yaml \
+                qt6-base-dev qt6-base-dev-tools qmake6 qt6-tools-dev \
+                qt6-declarative-dev qt6-5compat-dev \
+                qt6-svg-dev qt6-websockets-dev \
+                qt6-webengine-dev qt6-webview-dev qt6-webview-plugins \
+                qt6-shadertools-dev qt6-networkauth-dev \
+                libqt6core6 libqt6gui6 libqt6network6 libqt6widgets6 \
+                libqt6qml6 libqt6qmlcore6 libqt6quick6 \
+                libqt6quickcontrols2-6 libqt6svg6 libqt6webchannel6 \
+                libqt6webenginecore6 libqt6webenginequick6 \
+                libqt6websockets6 libqt6shadertools6 \
+                libqt6core5compat6-dev qt6-qpa-plugins \
+                qml6-module-qtquick-controls qml6-module-qtqml-workerscript \
+                qml6-module-qtquick-templates qml6-module-qtquick-layouts \
+                qml6-module-qt5compat-graphicaleffects qml6-module-qtwebchannel \
+                qml6-module-qtwebengine qml6-module-qtquick-window \
+                qml6-module-qtquick-dialogs \
+                libgl1-mesa-dev libfreetype6-dev libxi-dev \
+                libxkbcommon-dev libxkbcommon-x11-dev libx11-xcb-dev \
+                libdrm-dev libglu1-mesa-dev libwayland-dev \
+                libwayland-egl1-mesa libgles2-mesa-dev &&
               cd /github/workspace/jacktrip-source &&
               dpkg-buildpackage -us -uc -b
             "
