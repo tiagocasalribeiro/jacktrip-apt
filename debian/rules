@@ -6,7 +6,5 @@ override_dh_auto_configure:
 	dh_auto_configure -- --buildtype=release
 
 override_dh_shlibdeps:
-	# Exclui a dependência exata qt6-websockets-abi
+	# Exclui a dependência exata qt6-websockets-abi (não é um pacote real)
 	dh_shlibdeps -- -xqt6-websockets-abi
-	# Adiciona uma dependência genérica manual
-	echo "jacktrip: Depends=libqt6websockets6" >> debian/jacktrip.substvars
