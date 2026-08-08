@@ -132,7 +132,7 @@ jobs:
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
-      - name: Generate and sign APT metadata
+      - name: Generate and sign APT metadata (with full Release fields)
         if: steps.check.outputs.skip == 'false'
         run: |
           cd apt-repo
@@ -141,7 +141,16 @@ jobs:
           apt-ftparchive packages pool/ > $DIST_DIR/Packages
           gzip -k -f $DIST_DIR/Packages
 
-          apt-ftparchive release dists/stable > dists/stable/Release
+          apt-ftparchive release \
+            -o APT::FTPArchive::Release::Origin="jacktrip-apt" \
+            -o APT::FTPArchive::Release::Label="jacktrip-apt" \
+            -o APT::FTPArchive::Release::Suite="stable" \
+            -o APT::FTPArchive::Release::Codename="stable" \
+            -o APT::FTPArchive::Release::Architectures="amd64" \
+            -o APT::FTPArchive::Release::Components="main" \
+            -o APT::FTPArchive::Release::Description="JackTrip APT repository" \
+            dists/stable > dists/stable/Release
+
           gpg --batch --yes --detach-sign --armor -o dists/stable/Release.gpg dists/stable/Release
           gpg --batch --yes --clearsign -o dists/stable/InRelease dists/stable/Release
 

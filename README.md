@@ -8,11 +8,7 @@ Este repositório contém os arquivos de empacotamento e o workflow GitHub Actio
 
 ## 📦 Adicionar o repositório APT (assinado)
 
+### 1. Criar o diretório para as chaves (se não existir)
+
 ```bash
-# Descarregar a chave pública
-wget -qO- https://raw.githubusercontent.com/tiagocasalribeiro/jacktrip-apt/main/public.key | sudo gpg --dearmor > /usr/share/keyrings/jacktrip-archive-keyring.gpg
-
-# Adicionar o repositório
-echo "deb [signed-by=/usr/share/keyrings/jacktrip-archive-keyring.gpg] https://tiagocasalribeiro.github.io/jacktrip-apt stable main" | sudo tee /etc/apt/sources.list.d/jacktrip.list
-
-sudo apt update
+sudo mkdir -p /etc/apt/keyrings
