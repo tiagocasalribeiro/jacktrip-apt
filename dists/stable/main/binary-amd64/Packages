@@ -17,6 +17,25 @@ SHA512: a5c0eaa5a66048770bc44f6d4f37e6281034ab19beec24b0cd89daf68a6be0f581329643
 Description: debug symbols for jacktrip
 Build-Ids: e5954fe4c8bcb61f5111714fec72327033ead453
 
+Package: jacktrip-dbgsym
+Architecture: amd64
+Version: 3.0.1-1
+Auto-Built-Package: debug-symbols
+Priority: optional
+Section: debug
+Source: jacktrip
+Maintainer: Seu Nome <seu-email@exemplo.com>
+Installed-Size: 15637
+Depends: jacktrip (= 3.0.1-1)
+Filename: pool/main/j/jacktrip/jacktrip-dbgsym_3.0.1-1_amd64.deb
+Size: 15625228
+MD5sum: 41ef1b71bb1400122e0ed8eab4f18fe7
+SHA1: 3960f58ef7901f9166a4298b75e99ac7d9c05398
+SHA256: 4e57f2e678c85936c34b941979cf8f3025372e7ba0417bc27057079f80c6a278
+SHA512: edf4d671d41875242e8f82d4e14983aa4ed5def471d54bf0b11a975e65d4941d0129310e047c1aad747f8a36ccea9ded173637c03a98c93d6483869ac8c77843
+Description: debug symbols for jacktrip
+Build-Ids: c3d9f996f5160e28769b4805c3a0b9e7b1a07216
+
 Package: jacktrip
 Architecture: amd64
 Version: 3.0.0-1
@@ -31,6 +50,25 @@ MD5sum: d16697cfdaa9e60d04daaa6331da16c9
 SHA1: 9fa1517bcc6f6505eff437ffa340b8e72576c502
 SHA256: acd4fcb38feb92284d7e29e183ab70c9f3653424a9685fc99b1a9f81f622fac0
 SHA512: 98460dd7d5d76fefd7cef8dd5054693daa374a000f5a5d7a0d6c9cfc31dbc292e869c27424864ccd4c67d76f4cc65571e74ebc9818ad318d7fa52da404835609
+Homepage: https://github.com/jacktrip/jacktrip
+Description: High-quality system for audio network performances
+ JackTrip is a Linux and Mac OS X-based system used for multi-machine
+ network performance over the Internet.
+
+Package: jacktrip
+Architecture: amd64
+Version: 3.0.1-1
+Priority: optional
+Section: sound
+Maintainer: Seu Nome <seu-email@exemplo.com>
+Installed-Size: 2425
+Depends: libc6 (>= 2.34), libgcc-s1 (>= 4.0), libjack-jackd2-0 (>= 1.9.10+20150825) | libjack-0.125, libqt6core6 (>= 6.4.0), libqt6gui6 (>= 6.1.2), libqt6network6 (>= 6.4.0), libqt6qml6 (>= 6.2.0), libqt6quick6 (>= 6.2.0), libqt6quickcontrols2-6 (>= 6.2.0), libqt6svg6 (>= 6.2.0), libqt6webchannel6 (>= 6.2.1), libqt6webenginecore6 (>= 6.3.0), libqt6webenginecore6-bin (>= 6.3.0), libqt6webenginequick6 (>= 6.2.2), libqt6websockets6 (>= 6.2.1), libqt6widgets6 (>= 6.3.0), librtaudio6 (>= 5.2.0~ds1), libsamplerate0 (>= 0.1.7), libstdc++6 (>= 11)
+Filename: pool/main/j/jacktrip/jacktrip_3.0.1-1_amd64.deb
+Size: 970180
+MD5sum: 8f5883486df1eec941ebcdbc2bbec257
+SHA1: 32407ab22db9e6e10935b39afcb0cb2b7f415f66
+SHA256: 8b226953e8117adafd0fc3aa33121a9b0d91ce4be50ddec8020ac3e38d879138
+SHA512: 6b4a7b3d467dec132d33a76efa9030cf36dfd86783a0b56b1ed3574372f90b3b106ce0d6a4543de49ac829795c03241c54241499ab664a9618c820d57b618b0c
 Homepage: https://github.com/jacktrip/jacktrip
 Description: High-quality system for audio network performances
  JackTrip is a Linux and Mac OS X-based system used for multi-machine
