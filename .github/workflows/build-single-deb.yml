@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Forçar build (true/false)'
+        description: 'Forçar compilação (true/false)'
         required: true
         default: 'false'
 
@@ -16,26 +16,29 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout your repo
+      - name: Checkout do repositório
         uses: actions/checkout@v4
         with:
           path: my-repo
 
-      - name: Checkout gh-pages branch
+      - name: Checkout do ramo gh-pages
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: apt-repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get latest release from jacktrip/jacktrip
+      - name: Obter a última release do jacktrip/jacktrip
         id: latest
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/jacktrip/jacktrip/releases/latest | jq -r .tag_name)
+          RESPONSE=$(curl -s https://api.github.com/repos/jacktrip/jacktrip/releases/latest)
+          LATEST=$(echo "$RESPONSE" | jq -r .tag_name)
+          BODY=$(echo "$RESPONSE" | jq -r .body)
           echo "version=$LATEST" >> $GITHUB_OUTPUT
-          echo "Latest version: $LATEST"
+          echo "$BODY" > release_body.md
+          echo "Última versão: $LATEST"
 
-      - name: Read stored version
+      - name: Ler versão armazenada
         id: stored
         run: |
           if [ -f apt-repo/VERSION ]; then
@@ -45,19 +48,19 @@ jobs:
           fi
           echo "stored=$STORED" >> $GITHUB_OUTPUT
 
-      - name: Check if new version (or forced)
+      - name: Verificar se há nova versão (ou se é forçada)
         id: check
         run: |
           if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
             echo "skip=false" >> $GITHUB_OUTPUT
-            echo "Forced build enabled"
+            echo "Compilação forçada activada"
           elif [ "${{ steps.latest.outputs.version }}" = "${{ steps.stored.outputs.stored }}" ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
           else
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download source tarball
+      - name: Descarregar o ficheiro fonte tarball
         if: steps.check.outputs.skip == 'false'
         run: |
           VERSION="${{ steps.latest.outputs.version }}"
@@ -66,7 +69,7 @@ jobs:
           tar -xzf jacktrip-${VERSION}.tar.gz
           mv jacktrip-${VERSION#v} jacktrip-source
 
-      - name: Prepare Debian packaging (with automatic fixes)
+      - name: Preparar empacotamento Debian (com correcções automáticas)
         if: steps.check.outputs.skip == 'false'
         run: |
           VERSION="${{ steps.latest.outputs.version }}"
@@ -79,11 +82,11 @@ jobs:
           echo "3.0 (quilt)" > debian/source/format
           cat > debian/changelog << EOF
           jacktrip (${PKG_VERSION}) stable; urgency=medium
-            * Automated build from upstream release ${VERSION}
+            * Compilação automática a partir do lançamento original ${VERSION}
            -- GitHub Actions <actions@github.com>  $(date -R)
           EOF
 
-      - name: Build .deb in Debian 12 container
+      - name: Compilar .deb em contentor Debian 12
         if: steps.check.outputs.skip == 'false'
         uses: docker://debian:bookworm
         with:
@@ -119,20 +122,20 @@ jobs:
               dpkg-buildpackage -us -uc -b
             "
 
-      - name: Copy .deb to apt repository
+      - name: Copiar .deb para o repositório APT
         if: steps.check.outputs.skip == 'false'
         run: |
           mkdir -p apt-repo/pool/main/j/jacktrip
           cp jacktrip-source/../*.deb apt-repo/pool/main/j/jacktrip/
 
-      - name: Import GPG key
+      - name: Importar chave GPG
         if: steps.check.outputs.skip == 'false'
         run: |
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --batch --import
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
-      - name: Generate and sign APT metadata (with full Release fields)
+      - name: Gerar e assinar metadados APT (com campos Release completos)
         if: steps.check.outputs.skip == 'false'
         run: |
           cd apt-repo
@@ -148,37 +151,34 @@ jobs:
             -o APT::FTPArchive::Release::Codename="stable" \
             -o APT::FTPArchive::Release::Architectures="amd64" \
             -o APT::FTPArchive::Release::Components="main" \
-            -o APT::FTPArchive::Release::Description="JackTrip APT repository" \
+            -o APT::FTPArchive::Release::Description="Repositório APT do JackTrip" \
             dists/stable > dists/stable/Release
 
           gpg --batch --yes --detach-sign --armor -o dists/stable/Release.gpg dists/stable/Release
           gpg --batch --yes --clearsign -o dists/stable/InRelease dists/stable/Release
 
-      - name: Update VERSION file
+      - name: Actualizar ficheiro VERSION
         if: steps.check.outputs.skip == 'false'
         run: |
           echo "${{ steps.latest.outputs.version }}" > apt-repo/VERSION
 
-      - name: Commit and push to gh-pages
+      - name: Commit e push para gh-pages
         if: steps.check.outputs.skip == 'false'
         run: |
           cd apt-repo
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update to version ${{ steps.latest.outputs.version }} (signed repository)"
+          git commit -m "Actualização para a versão ${{ steps.latest.outputs.version }} (repositório assinado)"
           git push
 
-      - name: Create GitHub Release and attach .deb
+      - name: Criar Release no GitHub e anexar o .deb
         if: steps.check.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.latest.outputs.version }}
           name: JackTrip ${{ steps.latest.outputs.version }}
-          body: |
-            Pacote .deb para distribuições Debian-based (Debian 12+, Ubuntu 22.04+).
-            Instalação via APT: `sudo apt install jacktrip` (após adicionar o repositório).
-            Consulte o README para mais detalhes.
+          body_path: release_body.md
           draft: false
           prerelease: false
           files: |
